@@ -43,6 +43,7 @@ def generate_launch_description():
     inter_planner = LaunchArgument('inter_planner')
     train_mode = LaunchArgument('train_mode', default_value='false')
     planner_only = LaunchArgument('planner_only', default_value='false')
+    agent = LaunchArgument('agent', default_value='')
 
     def nav2_cfg(*parts):
         return PathJoinSubstitution([robots_root, 'config', 'nav2', *parts])
@@ -206,6 +207,7 @@ def generate_launch_description():
                         'env_namespace': env_namespace.substitution,
                         'frame': frame.substitution,
                         'use_sim_time': use_sim_time.substitution,
+                        'agent': agent.substitution,
                     }.items(),
                 )
             )

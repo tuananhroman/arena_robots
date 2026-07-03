@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from unittest.mock import MagicMock
 
+import pytest
+
 
 def _make_mock_robot(name: str = "test_robot") -> object:
     mock_robot = MagicMock()
@@ -95,6 +97,31 @@ class TestNav2LaunchActions:
         b = self._make_bringup()
         actions = b._launch_actions(unknown_kwarg="ignored")
         assert isinstance(actions, list)
+
+    def test_agent_arg_forwarded(self):
+        b = self._make_bringup()
+        actions = b._launch_actions(local_planner="rosnav_rl", agent="my_agent")
+        args = dict(actions[0].launch_arguments)
+        assert args["agent"] == "my_agent"
+
+    def test_rosnav_rl_without_agent_raises(self):
+        robot = _make_mock_robot("myrobot")
+        robot.caps.mobile.sub.return_value = {}
+        from arena_robots.bringup.mobile.nav2 import Nav2Bringup
+
+        b = Nav2Bringup(robot=robot, namespace="/robot1")
+        with pytest.raises(ValueError):
+            b._launch_actions(local_planner="rosnav_rl")
+
+    def test_rosnav_rl_agent_from_cap_fallback(self):
+        robot = _make_mock_robot("myrobot")
+        robot.caps.mobile.sub.return_value = {"agent": "cap_agent"}
+        from arena_robots.bringup.mobile.nav2 import Nav2Bringup
+
+        b = Nav2Bringup(robot=robot, namespace="/robot1")
+        actions = b._launch_actions(local_planner="rosnav_rl")
+        args = dict(actions[0].launch_arguments)
+        assert args["agent"] == "cap_agent"
 
     def test_robot_name_forwarded(self):
         b = self._make_bringup()
