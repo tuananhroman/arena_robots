@@ -26,6 +26,25 @@ typically driven from
 at launch (`mobile.local_planner:=teb`, etc.) which the task-generator
 forwards to this launch file.
 
+### `rosnav_rl.launch.py`
+
+Internals of `arena_robots.bringup.mobile.rosnav_rl.RosnavRlBringup`. Starts a
+single `rosnav_rl` inference node (`arena_inference_node.py`) that publishes
+`cmd_vel` directly — no nav2 stack. Selected via `mobile:=rosnav_rl
+mobile.agent:=<agent>`, where `<agent>` names a directory under
+`arena_training/agents/` (either SB3 or DreamerV3 backend — both load through
+`RL_Agent.from_agent_dir()`, see the
+[rosnav_rl README](../../../../arena_training/deps/rosnav_rl/rosnav_rl/README.md#deploy-a-pre-trained-agent)).
+
+The same agent is also reachable behind nav2 via `mobile:=nav2
+mobile.local_planner:=rosnav_rl` — that route uses the native `nav2.launch.py`
+below plus the `rosnav_rl` controller's
+[`controller.launch.py` side-car](../../config/nav2/controllers/rosnav_rl/controller.launch.py),
+which starts the `action_server.py` node backing the `DRLController` nav2
+plugin's `get_command` service. Both routes accept the bare-name shorthand
+`planner:=<agent>` (resolved by `arena_planners`' resolver, which discovers
+agents under `arena_training/agents/` the same way).
+
 ### `none.launch.py`
 
 Internals of `arena_robots.bringup.none.NoneBringup`. Spins up no navigation
