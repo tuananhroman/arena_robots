@@ -33,13 +33,19 @@ acceleration_limits:
   angular: 3.2
 
 actions:
+  # RL action bounds (source of the rosnav_rl continuous action space, via
+  # robot_description.actions.continuous). Capped at 1.0 m/s ≈ pedestrian walking
+  # speed for the ICRA social-nav experiments: above that the robot outruns the
+  # crowd and the social-module ablation deltas collapse (proposal §4.1). Matches
+  # rosnav_rl's own default range. The controller clamp (velocity_limits above) is
+  # separate. Jackal hardware does ~2.0 m/s — restore that for non-social use.
   continuous:
     linear:
-      min: -2.0
-      max: 2.0
+      min: -0.5
+      max: 1.0
     angular:
-      min: -4.0
-      max: 4.0
+      min: -1.0
+      max: 1.0
   discrete:
     - angular: 0.0
       linear: 0.3
